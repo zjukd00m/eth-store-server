@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  server:
+    build:
+      context: .
+      args:
+        - POSTGRES_URI_ARG=${POSTGRES_URI}
+    container_name: eth-store-server
+    environment:
+      - NODE_ENV=dev
+
+  db:
+    image: postgres:latest
+    container_name: eth-store-db
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    ports:
+      - "5439:5432"
