@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Item } from './items.entity';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { CreateItemDTO } from './dto/create.dto';
 import { UpdateItemDTO } from './dto/update.dto';
 import { DeleteItemDTO } from './dto/delete.dto';
@@ -75,7 +75,9 @@ export class ItemsService {
     async findOneById(request: FindItemByIdDTO) {
         const { id } = request;
         try {
-            return await this.itemsRepository.findOneByOrFail({ id });
+            return await this.itemsRepository.findOneOrFail({
+                where: { id },
+            });
         } catch (error) {
             throw new HttpException(
                 { message: "The item doesn't exist" },
@@ -85,8 +87,18 @@ export class ItemsService {
     }
 
     async findAll(request: FindAllItemsDTO) {
+        const { creatorId, name } = request;
+
+        if (creatorId?.length) {
+            delete request.creatorId;
+        }
+
         const items = await this.itemsRepository.find({
-            where: request,
+            where: {
+                ...request,
+                ...(creatorId?.length && { creator: { id: creatorId } }),
+                ...(name?.length && { name: ILike(`%${name}%`) }),
+            },
         });
 
         return { items };
