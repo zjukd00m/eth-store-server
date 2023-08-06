@@ -10,6 +10,8 @@ import { ItemsService } from './items/items.service';
 import { MulterModule } from '@nestjs/platform-express';
 import { cwd } from 'process';
 import { HttpModule } from '@nestjs/axios';
+import { NotificationsModule } from './notifications/notifications.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 console.log({ path: path.join(__dirname, '../.dev.env') });
 
@@ -44,12 +46,21 @@ console.log({ BASE_DIR });
                 }
             ),
         }),
+        EventEmitterModule.forRoot({
+            delimiter: '.',
+            newListener: false,
+            removeListener: false,
+            maxListeners: 10,
+            verboseMemoryLeak: false,
+            ignoreErrors: false,
+        }),
         MulterModule.register({
             dest: BASE_DIR,
         }),
         HttpModule,
         UsersModule,
         ItemsModule,
+        NotificationsModule,
     ],
     providers: [UsersService, ItemsService],
 })

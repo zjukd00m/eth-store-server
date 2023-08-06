@@ -11,6 +11,7 @@ import { HttpService } from '@nestjs/axios';
 import { catchError, firstValueFrom } from 'rxjs';
 import { AxiosError } from 'axios';
 import { User } from 'src/users/users.entity';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 // TODO: Create an exception filter for the postgresql errors
 
@@ -20,6 +21,7 @@ export class ItemsService {
         @InjectRepository(Item)
         private readonly itemsRepository: Repository<Item>,
         private readonly httpService: HttpService,
+        private readonly eventEmitter: EventEmitter2,
     ) {}
 
     async create(request: CreateItemDTO) {
@@ -49,6 +51,10 @@ export class ItemsService {
         const item = this.itemsRepository.create({
             ...request,
             creator,
+        });
+
+        this.eventEmitter.emit('notification.new', {
+            data: request,
         });
 
         return await this.itemsRepository.save(item);
