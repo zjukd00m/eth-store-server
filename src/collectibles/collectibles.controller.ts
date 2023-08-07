@@ -2,7 +2,9 @@ import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { FindAllColletiblesDTO } from './dto/findAll.dto';
 import { FindOneCollectibleDTO } from './dto/findOne.dto';
 import { CreateCollectibleDTO } from './dto/create.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Collectibles')
 @Controller()
 export class CollectiblesController {
     constructor(private readonly collectiblesService: any) {}

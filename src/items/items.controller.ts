@@ -16,7 +16,9 @@ import { DeleteItemDTO } from './dto/delete.dto';
 import { FindItemByIdDTO } from './dto/findOne.dto';
 import { FindAllItemsDTO } from './dto/findAll.dto';
 import { BaseItemDTO } from './dto/base.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Items')
 @Controller({ path: '/api/items' })
 export class ItemsController {
     constructor(private readonly itemsService: ItemsService) {}
