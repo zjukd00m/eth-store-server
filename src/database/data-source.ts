@@ -6,6 +6,7 @@ import { DataSource, DataSourceOptions } from 'typeorm';
 import { User } from '../users/users.entity';
 import { Item } from 'src/items/items.entity';
 import { Collectible } from 'src/collectibles/collectibles.entity';
+import { Transaction } from 'src/transactions/transactions.entity';
 
 dotenv.config({
     path: path.join(__dirname, './../../.dev.env'),
@@ -20,7 +21,7 @@ export const dataSourceOptions: DataSourceOptions = {
     url: process.env.POSTGRES_DB_URI,
     synchronize: true,
     logging: true,
-    entities: [User, Item, Collectible],
+    entities: [User, Item, Transaction, Collectible],
     migrations: ['./dist/src/database/migrations/*.js}'],
     subscribers: [],
 };

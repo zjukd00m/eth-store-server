@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Item } from './items.entity';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { CreateItemDTO } from './dto/create.dto';
 import { UpdateItemDTO } from './dto/update.dto';
 import { DeleteItemDTO } from './dto/delete.dto';
@@ -11,6 +11,7 @@ import { HttpService } from '@nestjs/axios';
 import { catchError, firstValueFrom } from 'rxjs';
 import { AxiosError } from 'axios';
 import { User } from 'src/users/users.entity';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 // TODO: Create an exception filter for the postgresql errors
 
@@ -20,6 +21,7 @@ export class ItemsService {
         @InjectRepository(Item)
         private readonly itemsRepository: Repository<Item>,
         private readonly httpService: HttpService,
+        private readonly eventEmitter: EventEmitter2,
     ) {}
 
     async create(request: CreateItemDTO) {
@@ -51,6 +53,10 @@ export class ItemsService {
             creator,
         });
 
+        this.eventEmitter.emit('notification.new', {
+            data: request,
+        });
+
         return await this.itemsRepository.save(item);
     }
 
@@ -75,7 +81,9 @@ export class ItemsService {
     async findOneById(request: FindItemByIdDTO) {
         const { id } = request;
         try {
-            return await this.itemsRepository.findOneByOrFail({ id });
+            return await this.itemsRepository.findOneOrFail({
+                where: { id },
+            });
         } catch (error) {
             throw new HttpException(
                 { message: "The item doesn't exist" },
@@ -85,8 +93,18 @@ export class ItemsService {
     }
 
     async findAll(request: FindAllItemsDTO) {
+        const { creatorId, name } = request;
+
+        if (creatorId?.length) {
+            delete request.creatorId;
+        }
+
         const items = await this.itemsRepository.find({
-            where: request,
+            where: {
+                ...request,
+                ...(creatorId?.length && { creator: { id: creatorId } }),
+                ...(name?.length && { name: ILike(`%${name}%`) }),
+            },
         });
 
         return { items };

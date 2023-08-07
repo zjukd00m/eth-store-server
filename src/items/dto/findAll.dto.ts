@@ -1,34 +1,36 @@
 import { PartialType } from '@nestjs/mapped-types';
 import {
-    IsBooleanString,
     IsDate,
     IsNumber,
     IsOptional,
     IsString,
+    IsUUID,
 } from 'class-validator';
 import { BaseItemDTO } from './base.dto';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class FindAllItemsDTO extends PartialType(BaseItemDTO) {
+    @ApiProperty()
     @IsString()
     @IsOptional()
     name?: string;
 
-    @IsString()
-    @IsOptional()
-    description?: string;
-
+    @ApiProperty()
     @IsDate()
     @IsOptional()
     createdAt?: Date;
 
-    @IsBooleanString()
+    @ApiProperty()
+    @IsUUID('4')
     @IsOptional()
-    isOnSale?: boolean;
+    creatorId: string;
 
+    @ApiProperty()
     @IsNumber()
     @IsOptional()
     quantity?: number;
 
+    @ApiProperty()
     @IsNumber()
     @IsOptional()
     price?: number;

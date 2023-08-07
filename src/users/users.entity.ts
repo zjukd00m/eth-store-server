@@ -1,13 +1,12 @@
 import { Item } from 'src/items/items.entity';
-import { Collectible } from '../collectibles/collectibles.entity';
 import {
     Entity,
     PrimaryGeneratedColumn,
     Column,
     CreateDateColumn,
     OneToMany,
-    JoinColumn,
 } from 'typeorm';
+import { Transaction } from 'src/transactions/transactions.entity';
 
 @Entity({ name: 'Users' })
 export class User {
@@ -35,11 +34,9 @@ export class User {
     @CreateDateColumn({ type: 'timestamp with time zone' })
     createdAt: Date;
 
-    @OneToMany(() => Collectible, (collectible) => collectible.creator)
-    @JoinColumn({ name: 'UserCollectibles' })
-    collectibles?: Collectible[];
-
     @OneToMany(() => Item, (item) => item.creator)
-    @JoinColumn({ name: 'UserItems' })
     items?: Item[];
+
+    @OneToMany(() => Transaction, (transaction) => transaction.user)
+    transactions?: Transaction[];
 }

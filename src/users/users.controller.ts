@@ -19,12 +19,10 @@ import { User } from './users.entity';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { UsersService } from './users.service';
 import { BaseUserDTO } from './dto/base.dto';
+import { UserFilesDTO } from './dto/changeProfilePictures.dto';
+import { ApiTags } from '@nestjs/swagger';
 
-interface UserFiles {
-    profilePicture?: Express.Multer.File[];
-    backgroundPicture?: Express.Multer.File[];
-}
-
+@ApiTags('Users')
 @Controller({ path: '/api/users' })
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}
@@ -53,21 +51,23 @@ export class UsersController {
     async changeProfilePictures(
         @Param() param: BaseUserDTO,
         @UploadedFiles()
-        files: UserFiles,
+        files: UserFilesDTO,
     ) {
         const { wallet } = param;
 
-        return this.usersService.changeProfilePictures({
+        const filesRequest = {
             wallet,
-            ...(files?.profilePicture?.length && {
+            ...(files?.profilePicture?.[0]?.size > 0 && {
                 profilePicture:
-                    files.profilePicture[0].buffer.toString('base64'),
+                    files?.profilePicture?.[0]?.buffer.toString('base64'),
             }),
-            ...(files?.backgroundPicture?.length && {
-                backgrounPicture:
-                    files.profilePicture[0].buffer.toString('base64'),
+            ...(files?.backgroundPicture?.[0]?.size > 0 && {
+                backgroundPicture:
+                    files?.backgroundPicture?.[0]?.buffer.toString('base64'),
             }),
-        });
+        };
+
+        return this.usersService.changeProfilePictures(filesRequest);
     }
 
     @Delete(':wallet')

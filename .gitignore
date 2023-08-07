@@ -5,3 +5,7 @@ build/
 tmp/
 temp/
 dist/
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfvars

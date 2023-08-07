@@ -1,12 +1,13 @@
+import { Collectible } from 'src/collectibles/collectibles.entity';
 import { User } from 'src/users/users.entity';
-import { Collectible } from '../collectibles/collectibles.entity';
 import {
     Entity,
     PrimaryGeneratedColumn,
     Column,
     CreateDateColumn,
+    JoinColumn,
+    ManyToOne,
     OneToOne,
-    OneToMany,
 } from 'typeorm';
 
 @Entity({ name: 'Items' })
@@ -23,18 +24,16 @@ export class Item {
     @CreateDateColumn({ type: 'timestamp with time zone' })
     createdAt: Date;
 
-    @Column('boolean', { nullable: false, default: false })
-    isOnSale: boolean;
-
     @Column('integer', { nullable: false, default: 1 })
     quantity: number;
 
     @Column('integer', { nullable: false })
     price: number;
 
-    @OneToOne(() => Collectible, (collectible) => collectible.itemId)
+    @OneToOne(() => Collectible, (collectible) => collectible.item)
     collectible: Collectible;
 
-    @OneToMany(() => User, (user) => user.items)
+    @ManyToOne(() => User, (user) => user.items)
+    @JoinColumn({ name: 'creatorId', referencedColumnName: 'id' })
     creator: User;
 }
