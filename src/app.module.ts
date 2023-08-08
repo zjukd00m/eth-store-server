@@ -12,6 +12,7 @@ import { cwd } from 'process';
 import { HttpModule } from '@nestjs/axios';
 import { NotificationsModule } from './notifications/notifications.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { CollectiblesModule } from './collectibles/collectibles.module';
 
 console.log({ path: path.join(__dirname, '../.dev.env') });
 
@@ -61,6 +62,7 @@ console.log({ BASE_DIR });
         UsersModule,
         ItemsModule,
         NotificationsModule,
+        CollectiblesModule,
     ],
     providers: [UsersService, ItemsService],
 })

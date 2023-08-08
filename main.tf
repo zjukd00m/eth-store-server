@@ -33,7 +33,7 @@ resource "docker_container" "eth_store_db" {
   volumes {
     volume_name    = "postgres_data"
     container_path = "/var/lib/postgresql/data"
-    host_path      = var.pg_volume_host_path
+    host_path      = var.postgres_volume_host_path
     read_only      = false
   }
 }
@@ -46,12 +46,15 @@ resource "docker_container" "eth_store_db" {
 
 # resource "docker_container" "eth_store_server" {
 #   image = docker_image.node.image_id
-#   name  = "eth_store_service"
+#   name  = "eth_store_server"
 #   ports {
-#     internal = 8080
+#     internal = var.eth_server_port
 #     external = 8090
 #   }
 #   env = [
-#     "NODE_ENV=dev",
+#     "NODE_ENV=${var.node_env}",
+#     "ALCHEMY_API_KEY=${var.alchemy_api_key}",
+#     "POSTGRES_DB_URI=${var.postgres_db_uri}",
+#     "TYPEORM_MIGRATION_SCHEMA=true"
 #   ]
 # }

@@ -15,25 +15,20 @@ export class Item {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Column('varchar', { nullable: false })
-    name: string;
-
-    @Column('varchar', { nullable: false })
-    description: string;
-
-    @CreateDateColumn({ type: 'timestamp with time zone' })
-    createdAt: Date;
-
-    @Column('integer', { nullable: false, default: 1 })
-    quantity: number;
-
-    @Column('integer', { nullable: false })
-    price: number;
+    // Smart contract address
+    @Column('varchar', { length: 255 })
+    address: string;
 
     @OneToOne(() => Collectible, (collectible) => collectible.item)
-    collectible: Collectible;
+    collectible?: Collectible;
 
     @ManyToOne(() => User, (user) => user.items)
     @JoinColumn({ name: 'creatorId', referencedColumnName: 'id' })
     creator: User;
+
+    @Column('boolean', { nullable: false, default: false })
+    inTrash: boolean;
+
+    @CreateDateColumn()
+    createdAt: Date;
 }

@@ -3,11 +3,13 @@ import { FindAllColletiblesDTO } from './dto/findAll.dto';
 import { FindOneCollectibleDTO } from './dto/findOne.dto';
 import { CreateCollectibleDTO } from './dto/create.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { UpdateCollectibleParamsDTO } from './dto/update.dto';
+import { CollectiblesService } from './collectibles.service';
 
 @ApiTags('Collectibles')
-@Controller()
+@Controller('api/collectibles')
 export class CollectiblesController {
-    constructor(private readonly collectiblesService: any) {}
+    constructor(private readonly collectiblesService: CollectiblesService) {}
 
     @Post()
     create(@Body() request: CreateCollectibleDTO) {
@@ -15,10 +17,11 @@ export class CollectiblesController {
     }
 
     @Put(':address')
-    update(@Param() params: any, @Body() request) {
+    update(@Param() params: UpdateCollectibleParamsDTO, @Body() request) {
         const { address } = params;
+        const { wallet } = request;
 
-        return this.collectiblesService.update({ ...request, address });
+        return this.collectiblesService.update({ address, wallet });
     }
 
     @Get(':address')
