@@ -23,17 +23,17 @@ resource "docker_container" "eth_store_db" {
   name  = "eth_store_db"
   ports {
     internal = 5432
-    external = 5442
+    external = var.postgres_port
   }
   env = [
-    "POSTGRES_USER=",
-    "POSTGRES_PASSWORD=",
-    "POSTGRES_DB="
+    "POSTGRES_USER=${var.postgres_user}",
+    "POSTGRES_PASSWORD=${var.postgres_password}",
+    "POSTGRES_DB=${var.postgres_db}"
   ]
   volumes {
     volume_name    = "postgres_data"
     container_path = "/var/lib/postgresql/data"
-    host_path      = "/home/zjukd00m/zjukd00m/AlchemyUniversity/final-project/eth-store/pg_data"
+    host_path      = var.pg_volume_host_path
     read_only      = false
   }
 }
