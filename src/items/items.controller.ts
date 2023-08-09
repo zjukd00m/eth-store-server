@@ -5,17 +5,14 @@ import {
     Get,
     Param,
     Post,
-    Put,
     Query,
 } from '@nestjs/common';
 import { ItemsService } from './items.service';
 import { Item } from './items.entity';
 import { CreateItemDTO } from './dto/create.dto';
-import { UpdateItemDTO } from './dto/update.dto';
-import { DeleteItemDTO } from './dto/delete.dto';
+import { DeleteItemParamsDTO, DeleteItemQueryDTO } from './dto/delete.dto';
 import { FindItemByIdDTO } from './dto/findOne.dto';
 import { FindAllItemsDTO } from './dto/findAll.dto';
-import { BaseItemDTO } from './dto/base.dto';
 import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Items')
@@ -28,28 +25,26 @@ export class ItemsController {
         return this.itemsService.create(request);
     }
 
-    @Put(':id')
-    update(
-        @Param() params: BaseItemDTO,
-        @Body() request: UpdateItemDTO,
+    @Delete(':address')
+    delete(
+        @Param() params: DeleteItemParamsDTO,
+        @Query() query: DeleteItemQueryDTO,
     ): Promise<Item> {
-        const { id } = params;
-        return this.itemsService.update({
-            id,
-            ...request,
+        const { address } = params;
+        const { inTrash } = query;
+
+        return this.itemsService.delete({
+            address,
+            ...(parseInt(inTrash) <= 0
+                ? { inTrash: false }
+                : { inTrash: true }),
         });
     }
 
-    @Delete(':id')
-    delete(@Param() params: DeleteItemDTO): Promise<Item> {
-        const { id } = params;
-        return this.itemsService.delete({ id });
-    }
-
-    @Get(':id')
+    @Get(':address')
     findOneById(@Param() params: FindItemByIdDTO): Promise<Item> {
-        const { id } = params;
-        return this.itemsService.findOneById({ id });
+        const { address } = params;
+        return this.itemsService.findOneById({ address });
     }
 
     @Get()
