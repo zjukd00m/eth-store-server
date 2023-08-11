@@ -13,45 +13,67 @@ provider "docker" {}
 // Resources:
 // - physical or virtual component: gcp vps server
 // - logical: gpc cloud run app
+resource "docker_network" "eth_store_network" {
+  name       = "eth_store_network"
+  attachable = true
+}
+
 resource "docker_image" "eth_store_db" {
   name         = "postgres:latest"
-  keep_locally = false
+  keep_locally = true
 }
 
 resource "docker_container" "eth_store_db" {
-  image = docker_image.eth_store_db.image_id
-  name  = "eth_store_db"
+  image        = docker_image.eth_store_db.image_id
+  name         = "eth_store_db"
+  hostname     = "eth_store_db"
+  rm           = true
+  network_mode = docker_network.eth_store_network.name
+  networks_advanced {
+    name    = docker_network.eth_store_network.name
+    aliases = ["eth_store_db"]
+  }
   ports {
     internal = 5432
-    external = 5442
+    external = var.postgres_port
   }
   env = [
-    "POSTGRES_USER=",
-    "POSTGRES_PASSWORD=",
-    "POSTGRES_DB="
+    "POSTGRES_USER=${var.postgres_user}",
+    "POSTGRES_PASSWORD=${var.postgres_password}",
+    "POSTGRES_DB=${var.postgres_db}"
   ]
   volumes {
     volume_name    = "postgres_data"
     container_path = "/var/lib/postgresql/data"
-    host_path      = "/home/zjukd00m/zjukd00m/AlchemyUniversity/final-project/eth-store/pg_data"
+    host_path      = var.postgres_volume_host_path
     read_only      = false
   }
 }
 
-# TODO: Verify if this works and add the necessary environment variable values
-# resource "docker_image" "eth_store_server" {
-#   name         = "node:16-buster"
-#   keep_locally = false
-# }
+resource "docker_image" "eth_store_server" {
+  name         = "eth_store_server:latest"
+  keep_locally = false
+}
 
-# resource "docker_container" "eth_store_server" {
-#   image = docker_image.node.image_id
-#   name  = "eth_store_service"
-#   ports {
-#     internal = 8080
-#     external = 8090
-#   }
-#   env = [
-#     "NODE_ENV=dev",
-#   ]
-# }
+resource "docker_container" "eth_store_server" {
+  image        = docker_image.eth_store_server.image_id
+  name         = "eth_store_server"
+  hostname     = "eth_store_server"
+  network_mode = docker_network.eth_store_network.name
+  networks_advanced {
+    name    = docker_network.eth_store_network.name
+    aliases = ["eth_store_server"]
+  }
+  rm         = true
+  depends_on = [docker_container.eth_store_db]
+  ports {
+    internal = var.eth_server_port
+    external = var.eth_server_port
+  }
+  env = [
+    "NODE_ENV=${var.node_env}",
+    "ALCHEMY_API_KEY=${var.alchemy_api_key}",
+    "TYPEORM_MIGRATION_SCHEMA=true",
+    "ETH_SERVER_PORT=${var.eth_server_port}"
+  ]
+}
