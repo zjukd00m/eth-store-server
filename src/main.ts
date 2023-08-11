@@ -29,6 +29,6 @@ async function bootstrap() {
         origin: '*',
     });
 
-    await app.listen(8099);
+    await app.listen(process.env.ETH_SERVER_PORT || 8098);
 }
 bootstrap();

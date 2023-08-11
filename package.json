@@ -6,9 +6,11 @@
    "private": true,
    "license": "UNLICENSED",
    "scripts": {
-      "prebuild": "[ -d ./dist ] && rm -rf ./dist",
+      "prebuild": "if [ -d ./dist ]; then rm -rf ./dist; fi",
       "build": "nest build",
-      "postbuild": "cp -r config/ dist/config && cp ./.dev.env dist",
+      "postbuild": "cp -r config/ /opt/server/dist && cp ./.dev.env /opt/server/dist",
+      "build:dev": "nest build && npm run postbuild:dev",
+      "postbuild:dev": "cp -r config/ dist && cp ./.dev.env dist",
       "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
       "start": "ts-node src/index.ts",
       "start:dev": "nest start --watch",
