@@ -53,7 +53,7 @@ variable "alchemy_api_key" {
   sensitive   = true
 }
 
-variable "postgres_db_uri" {
+variable "postgres_url" {
   type        = string
   description = "The postgresql URI connection to the database"
   sensitive   = true

@@ -24,11 +24,10 @@ resource "docker_image" "eth_store_db" {
 }
 
 resource "docker_container" "eth_store_db" {
-  image        = docker_image.eth_store_db.image_id
-  name         = "eth_store_db"
-  hostname     = "eth_store_db"
-  rm           = true
-  network_mode = docker_network.eth_store_network.name
+  image    = docker_image.eth_store_db.image_id
+  name     = "eth_store_db"
+  hostname = "eth_store_db"
+  rm       = true
   networks_advanced {
     name    = docker_network.eth_store_network.name
     aliases = ["eth_store_db"]
@@ -56,10 +55,9 @@ resource "docker_image" "eth_store_server" {
 }
 
 resource "docker_container" "eth_store_server" {
-  image        = docker_image.eth_store_server.image_id
-  name         = "eth_store_server"
-  hostname     = "eth_store_server"
-  network_mode = docker_network.eth_store_network.name
+  image    = docker_image.eth_store_server.image_id
+  name     = "eth_store_server"
+  hostname = "eth_store_server"
   networks_advanced {
     name    = docker_network.eth_store_network.name
     aliases = ["eth_store_server"]
@@ -74,6 +72,7 @@ resource "docker_container" "eth_store_server" {
     "NODE_ENV=${var.node_env}",
     "ALCHEMY_API_KEY=${var.alchemy_api_key}",
     "TYPEORM_MIGRATION_SCHEMA=true",
-    "ETH_SERVER_PORT=${var.eth_server_port}"
+    "ETH_SERVER_PORT=${var.eth_server_port}",
+    "POSTGRES_URL=${var.POSTGRES_URL}"
   ]
 }

@@ -6,6 +6,7 @@ import {
     Param,
     Post,
     Query,
+    UseGuards,
 } from '@nestjs/common';
 import { ItemsService } from './items.service';
 import { Item } from './items.entity';
@@ -14,6 +15,7 @@ import { DeleteItemParamsDTO, DeleteItemQueryDTO } from './dto/delete.dto';
 import { FindItemByIdDTO } from './dto/findOne.dto';
 import { FindAllItemsDTO } from './dto/findAll.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from 'src/guards/auth/auth.guard';
 
 @ApiTags('Items')
 @Controller({ path: '/api/items' })
@@ -21,6 +23,7 @@ export class ItemsController {
     constructor(private readonly itemsService: ItemsService) {}
 
     @Post()
+    @UseGuards(AuthGuard)
     create(@Body() request: CreateItemDTO): Promise<Item> {
         return this.itemsService.create(request);
     }

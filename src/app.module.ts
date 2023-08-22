@@ -13,6 +13,11 @@ import { HttpModule } from '@nestjs/axios';
 import { NotificationsModule } from './notifications/notifications.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { CollectiblesModule } from './collectibles/collectibles.module';
+import { JwtModule } from '@nestjs/jwt';
+import { AuthModule } from './auth/auth.module';
+import { AuthService } from './auth/auth.service';
+import { EthereumModule } from './ethereum/ethereum.module';
+import { EthereumService } from './ethereum/ethereum.service';
 
 console.log({ path: path.join(__dirname, '../.dev.env') });
 
@@ -31,21 +36,39 @@ console.log({ BASE_DIR });
                 abortEarly: false,
             },
         }),
+        JwtModule.registerAsync({
+            global: true,
+            inject: [ConfigService],
+            useFactory: async (configService: ConfigService) => ({
+                global: true,
+                secretOrPrivateKey: configService.get('jwt.key'),
+                signOptions: {
+                    algorithm: 'HS256',
+                    allowInsecureKeySizes: false,
+                    expiresIn: configService.get('jwt.expiresIn'),
+                },
+                verifyOptions: {
+                    algorithms: ['HS256'],
+                    ignoreExpiration: false,
+                },
+            }),
+        }),
         TypeOrmModule.forRootAsync({
             imports: [ConfigModule],
             inject: [ConfigService],
-            useFactory: (configService: ConfigService) => (
-                console.log(configService.get('database')),
-                console.log(configService.get('typeorm')),
-                {
-                    type: 'postgres',
-                    url: configService.get('database.uri'),
-                    synchronize: configService.get('typeorm.synchronize'),
-                    logging: true,
-                    entities: ['./dist/src/**/*.entity.js'],
-                    migrations: ['./dist/src/database/migrations/**/*.js}'],
-                }
-            ),
+            useFactory: (configService: ConfigService) => ({
+                type: 'postgres',
+                url: configService.get('database.url'),
+                // host: configService.get('database.host'),
+                // port: parseInt(configService.get('database.port')),
+                // username: configService.get('database.username'),
+                // password: configService.get('database.password'),
+                // database: configService.get('database.name'),
+                synchronize: true,
+                logging: true,
+                entities: ['./dist/src/**/*.entity.js'],
+                migrations: ['./dist/src/database/migrations/**/*.js}'],
+            }),
         }),
         EventEmitterModule.forRoot({
             delimiter: '.',
@@ -63,7 +86,9 @@ console.log({ BASE_DIR });
         ItemsModule,
         NotificationsModule,
         CollectiblesModule,
+        EthereumModule,
+        AuthModule,
     ],
-    providers: [UsersService, ItemsService],
+    providers: [UsersService, ItemsService, AuthService, EthereumService],
 })
 export class AppModule {}
