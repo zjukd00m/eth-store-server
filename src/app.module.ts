@@ -18,6 +18,10 @@ import { AuthModule } from './auth/auth.module';
 import { AuthService } from './auth/auth.service';
 import { EthereumModule } from './ethereum/ethereum.module';
 import { EthereumService } from './ethereum/ethereum.service';
+import { StoredCollectionModule } from './stored-collections/stored-collection.module';
+import { StoredCollectibleModule } from './stored-collectible/stored-collectible.module';
+import { StoredCollectionsService } from './stored-collections/stored-collection.service';
+import { StoredCollectiblesService } from './stored-collectible/stored-collectible.service';
 
 console.log({ path: path.join(__dirname, '../.dev.env') });
 
@@ -88,7 +92,16 @@ console.log({ BASE_DIR });
         CollectiblesModule,
         EthereumModule,
         AuthModule,
+        StoredCollectionModule,
+        StoredCollectibleModule,
     ],
-    providers: [UsersService, ItemsService, AuthService, EthereumService],
+    providers: [
+        UsersService,
+        ItemsService,
+        AuthService,
+        EthereumService,
+        StoredCollectionsService,
+        StoredCollectiblesService,
+    ],
 })
 export class AppModule {}

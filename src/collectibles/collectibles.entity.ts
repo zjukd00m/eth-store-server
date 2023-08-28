@@ -12,6 +12,7 @@ import {
 import { Transaction } from 'src/transactions/transactions.entity';
 import { CollectibleType } from './types/collectibles.enum';
 import { User } from 'src/users/users.entity';
+import { StoredCollectible } from 'src/stored-collectible/stored-collectible.entity';
 
 @Entity({ name: 'Collectibles' })
 export class Collectible {
@@ -39,4 +40,8 @@ export class Collectible {
 
     @CreateDateColumn()
     createdAt: Date;
+
+    @OneToOne(() => StoredCollectible, { nullable: true })
+    @JoinColumn({ name: 'storedCollectibleId', referencedColumnName: 'id' })
+    storedCollectible?: StoredCollectible;
 }

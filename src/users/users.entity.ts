@@ -8,6 +8,8 @@ import {
 } from 'typeorm';
 import { Transaction } from 'src/transactions/transactions.entity';
 import { Collectible } from 'src/collectibles/collectibles.entity';
+import { StoredCollection } from 'src/stored-collections/stored-collections.entity';
+import { StoredCollectible } from 'src/stored-collectible/stored-collectible.entity';
 
 @Entity({ name: 'Users' })
 export class User {
@@ -43,4 +45,16 @@ export class User {
 
     @OneToMany(() => Collectible, (collectible) => collectible.creator)
     collectibles?: Collectible[];
+
+    @OneToMany(
+        () => StoredCollection,
+        (storedCollection) => storedCollection.user,
+    )
+    storedCollections?: StoredCollection[];
+
+    @OneToMany(
+        () => StoredCollectible,
+        (storedCollectible) => storedCollectible.owner,
+    )
+    ownedCollectibles?: StoredCollectible[];
 }
