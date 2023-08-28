@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Collectible } from './collectibles.entity';
-import { Repository } from 'typeorm';
+import { ILike, In, Repository } from 'typeorm';
 import { HttpService } from '@nestjs/axios';
 import { catchError, firstValueFrom } from 'rxjs';
 import { User } from 'src/users/users.entity';
@@ -9,6 +9,8 @@ import { AxiosError } from 'axios';
 import { FindOneCollectibleDTO } from './dto/findOne.dto';
 import { FindAllColletiblesDTO } from './dto/findAll.dto';
 import { CreateCollectibleDTO } from './dto/create.dto';
+import { UpdateCollectibleDTO } from './dto/update.dto';
+import { Item } from 'src/items/items.entity';
 
 @Injectable()
 export class CollectiblesService {
@@ -19,41 +21,108 @@ export class CollectiblesService {
     ) {}
 
     async create(request: CreateCollectibleDTO) {
-        const { wallet, itemId } = request;
+        const { wallet, address, collectibleType, itemAddress } = request;
 
         const { data: creator } = await firstValueFrom(
             this.httpService
                 .get<User>(`http://localhost:8099/api/users/${wallet}`)
                 .pipe(
                     catchError((error: AxiosError) => {
-                        if (!error.request?.data) {
+                        if (!error.response?.data) {
+                            const message = (error.response.data as any)
+                                .message;
+
                             throw new HttpException(
-                                { message: error.message },
-                                HttpStatus.INTERNAL_SERVER_ERROR,
+                                { message },
+                                error.response.status,
                             );
                         }
 
-                        const message = (error.response.data as any).message;
-                        const status = error.response.status;
-
-                        throw new HttpException({ message }, status);
+                        throw new HttpException(
+                            { message: error.message },
+                            HttpStatus.INTERNAL_SERVER_ERROR,
+                        );
                     }),
                 ),
         );
 
-        // Create the collectible smart contract
+        let itemId = null;
 
-        // Deploy the collectible smart contract
+        if (itemAddress?.length) {
+            const { data: item } = await firstValueFrom(
+                this.httpService
+                    .get<Item>(`http://localhost:8099/api/items/${itemAddress}`)
+                    .pipe(
+                        catchError((error: AxiosError) => {
+                            if (error.response?.data) {
+                                const message = (error.response.data as any)
+                                    .message;
+                                const status = error.response.status;
 
-        delete request.itemId;
-        delete request.wallet;
+                                throw new HttpException({ message }, status);
+                            }
+
+                            throw new HttpException(
+                                { message: error.message },
+                                HttpStatus.INTERNAL_SERVER_ERROR,
+                            );
+                        }),
+                    ),
+            );
+
+            itemId = item.id;
+        }
 
         const collectible = this.collectiblesRepository.create({
-            ...request,
-            item: {
-                id: itemId,
+            address,
+            collectibleType,
+            creator: {
+                id: creator.id,
             },
+            ...(itemAddress?.length && { item: { id: itemId } }),
         });
+
+        return await this.collectiblesRepository.save(collectible);
+    }
+
+    // Only the owner of the collectible can update it
+    async update(request: UpdateCollectibleDTO) {
+        const { wallet, address } = request;
+
+        const { data: creator } = await firstValueFrom(
+            this.httpService
+                .get<User>(`http://localhost:8099/api/users/${wallet}`)
+                .pipe(
+                    catchError((error: AxiosError) => {
+                        if (error.response?.data) {
+                            const message = (error.response.data as any)
+                                .message;
+                            const status = error.response.status;
+                            throw new HttpException({ message }, status);
+                        }
+
+                        throw new HttpException(
+                            { message: error.message },
+                            HttpStatus.INTERNAL_SERVER_ERROR,
+                        );
+                    }),
+                ),
+        );
+
+        const collectible = await this.findOneById({ address });
+
+        // TODO: Verify the current onwner of the collectible is the same as the user that sent the request
+        // if (collectible.creator.wallet !== creatorWallet) {
+        // throw new HttpException(
+        //     { message: 'Not authorized' },
+        //     HttpStatus.UNAUTHORIZED,
+        // );
+        // ?
+
+        // Update the owner of the collectible
+        if (collectible.creator.wallet !== wallet) {
+            collectible.creator.wallet = creator.wallet;
+        }
 
         return await this.collectiblesRepository.save(collectible);
     }
@@ -65,6 +134,7 @@ export class CollectiblesService {
             const collectible = await this.collectiblesRepository.findOneOrFail(
                 {
                     where: { address },
+                    relations: ['creator'],
                 },
             );
 
@@ -89,8 +159,11 @@ export class CollectiblesService {
         const collectibles = await this.collectiblesRepository.find({
             where: {
                 ...request,
-                ...(wallet?.length && { item: { creator: { wallet } } }),
+                ...(wallet?.length && {
+                    creator: { wallet: ILike(`%${wallet}%`) },
+                }),
             },
+            relations: ['creator'],
         });
 
         // TODO: Fetch the collectible smart contract data here...
