@@ -1,8 +1,9 @@
-import { IsEnum, IsEthereumAddress, IsUUID } from 'class-validator';
+import { IsEnum, IsEthereumAddress, IsOptional } from 'class-validator';
 import { CollectibleType } from '../types/collectibles.enum';
 import { ApiProperty } from '@nestjs/swagger';
+import { BaseCollectibleDTO } from './base.dto';
 
-export class CreateCollectibleDTO {
+export class CreateCollectibleDTO extends BaseCollectibleDTO {
     @ApiProperty()
     @IsEthereumAddress()
     wallet: string;
@@ -15,7 +16,10 @@ export class CreateCollectibleDTO {
     @IsEnum(CollectibleType)
     collectibleType: CollectibleType;
 
-    @ApiProperty()
-    @IsUUID('4')
-    itemId: string;
+    @ApiProperty({
+        required: false,
+    })
+    @IsEthereumAddress()
+    @IsOptional()
+    itemAddress?: string;
 }

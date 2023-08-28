@@ -1,9 +1,8 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Item } from './items.entity';
-import { ILike, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CreateItemDTO } from './dto/create.dto';
-import { UpdateItemDTO } from './dto/update.dto';
 import { DeleteItemDTO } from './dto/delete.dto';
 import { FindItemByIdDTO } from './dto/findOne.dto';
 import { FindAllItemsDTO } from './dto/findAll.dto';
@@ -33,17 +32,18 @@ export class ItemsService {
                 .pipe(
                     catchError((error: AxiosError) => {
                         // An error that doesn't come from the server
-                        if (!error.response?.data) {
-                            throw new HttpException(
-                                { message: error.message },
-                                HttpStatus.INTERNAL_SERVER_ERROR,
-                            );
+                        if (error.response?.data) {
+                            const message = (error.response.data as any)
+                                .message;
+                            const status = error.response.status;
+
+                            throw new HttpException({ message }, status);
                         }
 
-                        const message = (error.response.data as any).message;
-                        const status = error.response.status;
-
-                        throw new HttpException({ message }, status);
+                        throw new HttpException(
+                            { message: error.message },
+                            HttpStatus.INTERNAL_SERVER_ERROR,
+                        );
                     }),
                 ),
         );
@@ -60,29 +60,35 @@ export class ItemsService {
         return await this.itemsRepository.save(item);
     }
 
-    async update(request: UpdateItemDTO) {
-        const { id } = request;
+    async delete(request: DeleteItemDTO) {
+        const { address, inTrash } = request;
 
-        const item = await this.findOneById({ id });
+        const item = await this.findOneById({ address });
 
-        Object.assign(item, request);
+        if (item.inTrash && inTrash) {
+            throw new HttpException(
+                { message: 'The item was already deleted' },
+                HttpStatus.BAD_REQUEST,
+            );
+        }
+
+        if (!item.inTrash && !inTrash) {
+            throw new HttpException(
+                { message: 'The item was already restored' },
+                HttpStatus.BAD_REQUEST,
+            );
+        }
+
+        item.inTrash = inTrash;
 
         return await this.itemsRepository.save(item);
     }
 
-    async delete(request: DeleteItemDTO) {
-        const { id } = request;
-
-        const item = await this.findOneById({ id });
-
-        return await this.itemsRepository.remove(item);
-    }
-
     async findOneById(request: FindItemByIdDTO) {
-        const { id } = request;
+        const { address } = request;
         try {
             return await this.itemsRepository.findOneOrFail({
-                where: { id },
+                where: { address },
             });
         } catch (error) {
             throw new HttpException(
@@ -93,17 +99,20 @@ export class ItemsService {
     }
 
     async findAll(request: FindAllItemsDTO) {
-        const { creatorId, name } = request;
+        const { creatorId, wallet } = request;
 
         if (creatorId?.length) {
             delete request.creatorId;
+        }
+        if (wallet?.length) {
+            delete request.wallet;
         }
 
         const items = await this.itemsRepository.find({
             where: {
                 ...request,
                 ...(creatorId?.length && { creator: { id: creatorId } }),
-                ...(name?.length && { name: ILike(`%${name}%`) }),
+                ...(wallet?.length && { creator: { wallet } }),
             },
         });
 
