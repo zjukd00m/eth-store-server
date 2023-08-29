@@ -88,6 +88,10 @@
          "**/*.(t|j)s"
       ],
       "coverageDirectory": "../coverage",
-      "testEnvironment": "node"
+      "testEnvironment": "node",
+      "modulePaths": ["src"],
+      "moduleNameMapper": {
+         "^src/(.*)$": "<rootDir>/$1"
+      }
    }
 }

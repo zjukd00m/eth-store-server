@@ -1,3 +1,4 @@
+import { CollectionMetadata } from 'src/collectibles/collectibles.interface';
 import { StoredCollectible } from 'src/stored-collectible/stored-collectible.entity';
 import { User } from 'src/users/users.entity';
 import {
@@ -26,14 +27,17 @@ export class StoredCollection {
     @Column('bigint', { nullable: false })
     maxSupply: string;
 
-    @Column('text', { nullable: false })
-    picture: string;
+    @Column('text', { nullable: true, default: null })
+    coverPicture?: string;
+
+    @Column('text', { nullable: true, default: null })
+    backgroundPicture?: string;
 
     @Column('text', { nullable: false })
     description: string;
 
-    @Column('jsonb', { nullable: true })
-    metadata?: string;
+    @Column('jsonb', { nullable: true, default: null, array: false })
+    metadata?: CollectionMetadata;
 
     @CreateDateColumn()
     createdAt: Date;

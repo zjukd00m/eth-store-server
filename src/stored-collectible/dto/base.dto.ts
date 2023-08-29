@@ -1,6 +1,6 @@
 import { IsUUID } from 'class-validator';
 
-export class FindOneStoredColletibleByIdDTO {
+export default class StoredCollectibleIDDTO {
     @IsUUID('4')
     id: string;
 }

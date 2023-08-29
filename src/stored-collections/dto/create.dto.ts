@@ -1,4 +1,10 @@
-import { IsOptional, IsString } from 'class-validator';
+import {
+    IsNumberString,
+    IsObject,
+    IsOptional,
+    IsString,
+} from 'class-validator';
+import { CollectionMetadataDTO } from 'src/collectibles/dto/metadata.dto';
 
 export class CreateStoredCollectionDTO {
     @IsString()
@@ -6,6 +12,9 @@ export class CreateStoredCollectionDTO {
 
     @IsString()
     symbol: string;
+
+    @IsNumberString()
+    maxSupply: string;
 
     @IsString()
     @IsOptional()
@@ -15,11 +24,7 @@ export class CreateStoredCollectionDTO {
     @IsOptional()
     backgroundPicture?: string;
 
-    @IsString()
+    @IsObject()
     @IsOptional()
-    bannerPictre?: string;
-
-    @IsString()
-    @IsOptional()
-    metadata?: string;
+    metadata?: CollectionMetadataDTO;
 }

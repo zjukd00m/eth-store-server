@@ -1,6 +1,3 @@
-import { IsUUID } from 'class-validator';
+import StoredCollectionIdDTO from './base.dto';
 
-export default class UpdateStoredCollectionDTO {
-    @IsUUID('4')
-    id: string;
-}
+export default class UpdateStoredCollectionDTO extends StoredCollectionIdDTO {}

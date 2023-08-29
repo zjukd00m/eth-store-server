@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { StoredCollectible } from './stored-collectible.entity';
 import { Repository } from 'typeorm';
 import { FindAllStoredCollectiblesDTO } from './dto/findAll.dto';
-import FindOneStoredColletibleByIdDTO from './dto/findOne.dto';
+import { FindOneStoredColletibleByIdDTO } from './dto/findOne.dto';
 import { UpdateStoredCollectibleDTO } from './dto/update.dto';
 import { CreateStoredCollectibleDTO } from './dto/create.dto';
 

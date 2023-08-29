@@ -10,10 +10,11 @@ import {
 } from '@nestjs/common';
 import { StoredCollectionsService } from './stored-collection.service';
 import { CreateStoredCollectionDTO } from './dto/create.dto';
-import { FindOneStoredCollectionById } from './dto/findOneById.dto';
 import { FindAllStoredCollectionsDTO } from './dto/findAll.dto';
-import { DeleteStoredCollectionDTO } from './dto/delete.dto';
 import UpdateStoredCollectionDTO from './dto/update.dto';
+import { DeleteStoredCollectionDTO } from './dto/delete.dto';
+import { FindOneStoredCollectionByIdDTO } from './dto/findOneById.dto';
+import StoredCollectionIdDTO from './dto/base.dto';
 
 @Controller({ path: 'api/stored-collections' })
 export class StoredCollectionsController {
@@ -27,13 +28,21 @@ export class StoredCollectionsController {
     }
 
     @Put(':id')
-    update(@Body() request: UpdateStoredCollectionDTO) {
-        return this.storedCollectionsService.update(request);
+    update(
+        @Param() params: StoredCollectionIdDTO,
+        @Body() request: UpdateStoredCollectionDTO,
+    ) {
+        const { id } = params;
+        return this.storedCollectionsService.update({
+            ...request,
+            id,
+        });
     }
 
     @Delete(':id')
-    delete(@Param() request: DeleteStoredCollectionDTO) {
-        return this.storedCollectionsService.delete(request);
+    delete(@Param() params: DeleteStoredCollectionDTO) {
+        const { id } = params;
+        return this.storedCollectionsService.delete({ id });
     }
 
     @Get()
@@ -42,7 +51,8 @@ export class StoredCollectionsController {
     }
 
     @Get(':id')
-    findOneById(@Param() request: FindOneStoredCollectionById) {
-        return this.storedCollectionsService.findOneById(request);
+    findOneById(@Param() params: FindOneStoredCollectionByIdDTO) {
+        const { id } = params;
+        return this.storedCollectionsService.findOneById({ id });
     }
 }

@@ -1,5 +1,5 @@
-import { Controller, Post, Req, Res } from '@nestjs/common';
-import { Request, Response } from 'express';
+import { Controller, Post, Req } from '@nestjs/common';
+import { Request } from 'express';
 import { AuthService } from './auth.service';
 import { ILoginResponse } from './auth.interfaces';
 
@@ -8,11 +8,8 @@ export class AuthController {
     constructor(private readonly authService: AuthService) {}
 
     @Post('login')
-    login(
-        @Req() request: Request,
-        @Res() response: Response,
-    ): Promise<ILoginResponse> {
-        return this.authService.login(request, response);
+    login(@Req() request: Request): Promise<ILoginResponse> {
+        return this.authService.login(request);
     }
 
     // @Post('logout')

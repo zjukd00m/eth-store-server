@@ -27,11 +27,14 @@ export class Collectible {
     @Column('enum', { nullable: false, enum: CollectibleType })
     collectibleType: CollectibleType;
 
-    @OneToOne(() => Item, (item) => item.collectible, { nullable: true })
+    @OneToOne(() => Item, (item) => item.collectible, {
+        nullable: true,
+        onDelete: 'CASCADE',
+    })
     @JoinColumn({ name: 'itemId', referencedColumnName: 'id' })
     item?: Item;
 
-    @ManyToOne(() => User, (user) => user.collectibles)
+    @ManyToOne(() => User, (user) => user.collectibles, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'userId', referencedColumnName: 'id' })
     creator: User;
 
@@ -42,6 +45,5 @@ export class Collectible {
     createdAt: Date;
 
     @OneToOne(() => StoredCollectible, { nullable: true })
-    @JoinColumn({ name: 'storedCollectibleId', referencedColumnName: 'id' })
     storedCollectible?: StoredCollectible;
 }

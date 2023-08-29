@@ -1,6 +1,7 @@
 import {
     Column,
     Entity,
+    JoinColumn,
     ManyToOne,
     OneToOne,
     PrimaryGeneratedColumn,
@@ -23,7 +24,7 @@ export class StoredCollectible {
     @Column('varchar', { length: 255, nullable: false })
     description: string;
 
-    @Column('varchar', { length: 1000, nullable: false })
+    @Column('text', { nullable: false })
     image: string;
 
     @Column('enum', {
@@ -45,12 +46,15 @@ export class StoredCollectible {
     @Column('jsonb', { nullable: false })
     attributes: string;
 
-    @ManyToOne(() => User, (user) => user.ownedCollectibles)
+    @ManyToOne(() => User, (user) => user.ownedCollectibles, {
+        onDelete: 'CASCADE',
+    })
     owner: User;
 
     @ManyToOne(
         () => StoredCollection,
         (storedCollection) => storedCollection.storedCollectibles,
+        { onDelete: 'CASCADE' },
     )
     collection: StoredCollection;
 
@@ -59,5 +63,6 @@ export class StoredCollectible {
         (collectible) => collectible.storedCollectible,
         { nullable: true },
     )
+    @JoinColumn({ name: 'collectibleId', referencedColumnName: 'id' })
     collectible?: Collectible;
 }

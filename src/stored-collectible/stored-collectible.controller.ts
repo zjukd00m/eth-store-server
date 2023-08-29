@@ -13,7 +13,8 @@ import { CreateStoredCollectibleDTO } from './dto/create.dto';
 import { DeleteStoredCollectibleDTO } from './dto/delete.dto';
 import { FindAllStoredCollectiblesDTO } from './dto/findAll.dto';
 import { UpdateStoredCollectibleDTO } from './dto/update.dto';
-import FindOneStoredColletibleByIdDTO from './dto/findOne.dto';
+import { FindOneStoredColletibleByIdDTO } from './dto/findOne.dto';
+import StoredCollectibleIDDTO from './dto/base.dto';
 
 @Controller({ path: 'api/stored-collections' })
 export class StoredCollectiblesController {
@@ -27,8 +28,12 @@ export class StoredCollectiblesController {
     }
 
     @Put(':id')
-    update(@Body() request: UpdateStoredCollectibleDTO) {
-        return this.storedCollectiblesService.update(request);
+    update(
+        @Param() params: StoredCollectibleIDDTO,
+        @Body() request: UpdateStoredCollectibleDTO,
+    ) {
+        const { id } = params;
+        return this.storedCollectiblesService.update({ ...request, id });
     }
 
     @Delete(':id')

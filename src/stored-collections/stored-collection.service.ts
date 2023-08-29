@@ -2,11 +2,11 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { StoredCollection } from './stored-collections.entity';
 import { Repository } from 'typeorm';
-import { FindOneStoredCollectionById } from './dto/findOneById.dto';
 import { CreateStoredCollectionDTO } from './dto/create.dto';
 import UpdateStoredCollectionDTO from './dto/update.dto';
 import { FindAllStoredCollectionsDTO } from './dto/findAll.dto';
 import { DeleteStoredCollectionDTO } from './dto/delete.dto';
+import { FindOneStoredCollectionByIdDTO } from './dto/findOneById.dto';
 
 @Injectable()
 export class StoredCollectionsService {
@@ -59,7 +59,7 @@ export class StoredCollectionsService {
         });
     }
 
-    async findOneById(request: FindOneStoredCollectionById) {
+    async findOneById(request: FindOneStoredCollectionByIdDTO) {
         const { id } = request;
         try {
             return await this.storedCollectionsService.findOneByOrFail({
