@@ -1,8 +1,8 @@
 import { ApiConsumes, ApiProperty } from '@nestjs/swagger';
-import { BaseUserDTO } from './base.dto';
 import { IsOptional, IsString } from 'class-validator';
+import { UserWalletDTO } from './user-wallet.dto';
 
-export class ChangeProfilePicturesDTO extends BaseUserDTO {
+export class ChangeProfilePicturesDTO extends UserWalletDTO {
     @IsString()
     @IsOptional()
     profilePicture?: string;

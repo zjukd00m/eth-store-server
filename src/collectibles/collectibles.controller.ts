@@ -1,37 +1,51 @@
-import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
-import { FindAllColletiblesDTO } from './dto/findAll.dto';
-import { FindOneCollectibleDTO } from './dto/findOne.dto';
-import { CreateCollectibleDTO } from './dto/create.dto';
-import { ApiTags } from '@nestjs/swagger';
-import { UpdateCollectibleParamsDTO } from './dto/update.dto';
+import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    Param,
+    ParseUUIDPipe,
+    Post,
+    Put,
+    Query,
+} from '@nestjs/common';
 import { CollectiblesService } from './collectibles.service';
+import { CreateCollectibleDTO } from './dto/create.dto';
+import { UpdateCollectibleBodyDTO } from './dto/update.dto';
+import { FindAllCollectiblesDTO } from './dto/findAll.dto';
 
-@ApiTags('Collectibles')
-@Controller('api/collectibles')
+@Controller({ path: 'api/collectibles' })
 export class CollectiblesController {
     constructor(private readonly collectiblesService: CollectiblesService) {}
 
     @Post()
-    create(@Body() request: CreateCollectibleDTO) {
+    create(request: CreateCollectibleDTO) {
         return this.collectiblesService.create(request);
     }
 
-    @Put(':address')
-    update(@Param() params: UpdateCollectibleParamsDTO, @Body() request) {
-        const { address } = params;
-        const { wallet } = request;
-
-        return this.collectiblesService.update({ address, wallet });
+    @Put(':id')
+    edit(
+        @Param('id', ParseUUIDPipe) id: string,
+        @Body() request: UpdateCollectibleBodyDTO,
+    ) {
+        return this.collectiblesService.edit({
+            ...request,
+            id,
+        });
     }
 
-    @Get(':address')
-    findOneById(@Param() params: FindOneCollectibleDTO) {
-        const { address } = params;
-        return this.collectiblesService.findOneById({ address });
+    @Delete(':id')
+    delete(@Param('id', ParseUUIDPipe) id: string) {
+        return this.collectiblesService.delete(id);
+    }
+
+    @Get(':id')
+    findOneById(@Param('id', ParseUUIDPipe) id: string) {
+        return this.collectiblesService.findOneById(id);
     }
 
     @Get()
-    findAll(@Query() request: FindAllColletiblesDTO) {
+    findAll(@Query() request: FindAllCollectiblesDTO) {
         return this.collectiblesService.findAll(request);
     }
 }

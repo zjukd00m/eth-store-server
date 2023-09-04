@@ -1,13 +1,13 @@
-import { Body, HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { CreateUserDTO } from './dto/create.dto';
 import { UpdateUserDTO } from './dto/update.dto';
 import { DeleteUserDTO } from './dto/delete.dto';
-import { SearchOneUser } from './dto/searchOne.dto';
-import { SearchManyUsersDTO } from './dto/searchMany.dto';
 import { User } from './users.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChangeProfilePicturesDTO } from './dto/changeProfilePictures.dto';
+import { FindOneByWallet } from './dto/findOne.dto';
+import { FindManyUsersDTO } from './dto/findMany.dto';
 
 @Injectable()
 export class UsersService {
@@ -16,7 +16,7 @@ export class UsersService {
         private readonly usersRepository: Repository<User>,
     ) {}
 
-    async create(@Body() request: CreateUserDTO) {
+    async create(request: CreateUserDTO) {
         const { wallet } = request;
 
         const exist = await this.usersRepository.exist({
@@ -37,10 +37,15 @@ export class UsersService {
         return await this.usersRepository.save(user);
     }
 
-    async update(wallet: string, request: UpdateUserDTO) {
+    async update(request: UpdateUserDTO) {
+        const { wallet } = request;
+
         const user = await this.findOneByWallet({ wallet });
 
         Object.assign(user, request);
+
+        console.log('This is the wallet');
+        console.log(wallet);
 
         return await this.usersRepository.save(user);
     }
@@ -53,12 +58,12 @@ export class UsersService {
         return await this.usersRepository.remove(user);
     }
 
-    async findOneByWallet(request: SearchOneUser) {
+    async findOneByWallet(request: FindOneByWallet) {
         const { wallet } = request;
 
         try {
             return await this.usersRepository.findOneByOrFail({
-                wallet: wallet.toLowerCase(),
+                wallet,
             });
         } catch (error) {
             throw new HttpException(
@@ -68,7 +73,7 @@ export class UsersService {
         }
     }
 
-    async findAll(request: SearchManyUsersDTO) {
+    async findAll(request: FindManyUsersDTO) {
         const users = await this.usersRepository.find({
             where: request,
         });

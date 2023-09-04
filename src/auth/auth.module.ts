@@ -4,6 +4,8 @@ import { AuthController } from './auth.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { EthereumModule } from 'src/ethereum/ethereum.module';
 import { ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from 'src/users/users.entity';
 
 @Module({
     imports: [
@@ -23,9 +25,10 @@ import { ConfigService } from '@nestjs/config';
             }),
         }),
         EthereumModule,
+        TypeOrmModule.forFeature([User]),
     ],
     controllers: [AuthController],
     providers: [AuthService],
-    exports: [AuthService],
+    exports: [TypeOrmModule, AuthService],
 })
 export class AuthModule {}

@@ -1,3 +1,3 @@
-import { BaseUserDTO } from './base.dto';
+import { UserWalletDTO } from './user-wallet.dto';
 
-export class DeleteUserDTO extends BaseUserDTO {}
+export class DeleteUserDTO extends UserWalletDTO {}

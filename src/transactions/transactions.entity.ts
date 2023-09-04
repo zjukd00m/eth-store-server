@@ -1,4 +1,4 @@
-import { Collectible } from 'src/collectibles/collectibles.entity';
+import { Collection } from 'src/collections/collection.entity';
 import { User } from 'src/users/users.entity';
 import {
     Entity,
@@ -14,18 +14,20 @@ export class Transaction {
     id: string;
 
     // Address of transaction in the blockchain
-    @Column('varchar', { nullable: false })
+    @Column('varchar', { length: 256, nullable: false })
     address: string;
 
     // Value of the transaction in WEI
-    @Column('int', { nullable: false })
+    @Column('bigint', { nullable: false })
     value: number;
 
-    @ManyToOne(() => User, (user) => user.transactions)
-    @JoinColumn({ name: 'userId', referencedColumnName: 'id' })
+    @ManyToOne(() => User, (user) => user.transactions, { onDelete: 'CASCADE' })
+    @JoinColumn({ name: 'userId', referencedColumnName: 'wallet' })
     user: User;
 
-    @ManyToOne(() => Collectible, (collectible) => collectible.transactions)
-    @JoinColumn({ name: 'collectibleId' })
-    collectible: Collectible;
+    @ManyToOne(() => Collection, (collection) => collection.transactions, {
+        onDelete: 'CASCADE',
+    })
+    @JoinColumn({ name: 'collectionId', referencedColumnName: 'id' })
+    collection?: Collection;
 }

@@ -3,12 +3,6 @@ import * as dotenv from 'dotenv';
 import * as path from 'path';
 import { DataSource, DataSourceOptions } from 'typeorm';
 // import { DATA_SOURCE } from './database.contants';
-import { User } from '../users/users.entity';
-import { Item } from 'src/items/items.entity';
-import { Collectible } from 'src/collectibles/collectibles.entity';
-import { Transaction } from 'src/transactions/transactions.entity';
-import { StoredCollection } from 'src/stored-collections/stored-collections.entity';
-import { StoredCollectible } from 'src/stored-collectible/stored-collectible.entity';
 
 dotenv.config({
     path: path.join(__dirname, './../../.dev.env'),
@@ -28,15 +22,8 @@ export const dataSourceOptions: DataSourceOptions = {
     // database: process.env.POSTGRES_DATABASE,
     synchronize: true,
     logging: true,
-    entities: [
-        User,
-        Item,
-        Transaction,
-        Collectible,
-        StoredCollection,
-        StoredCollectible,
-    ],
-    migrations: ['./dist/src/database/migrations/*.js}'],
+    entities: ['./dist/src/**/*.entity.js'],
+    migrations: ['./dist/src/database/migrations/*.js'],
     subscribers: [],
 };
 

@@ -1,22 +1,24 @@
-import { Item } from 'src/items/items.entity';
 import {
     Entity,
-    PrimaryGeneratedColumn,
     Column,
     CreateDateColumn,
     OneToMany,
+    PrimaryColumn,
 } from 'typeorm';
 import { Transaction } from 'src/transactions/transactions.entity';
-import { Collectible } from 'src/collectibles/collectibles.entity';
-import { StoredCollection } from 'src/stored-collections/stored-collections.entity';
-import { StoredCollectible } from 'src/stored-collectible/stored-collectible.entity';
+import { Collection } from 'src/collections/collection.entity';
 
 @Entity({ name: 'Users' })
 export class User {
-    @PrimaryGeneratedColumn('uuid')
-    id: string;
-
-    @Column('varchar', { nullable: false })
+    @PrimaryColumn({
+        unique: true,
+        nullable: false,
+        primaryKeyConstraintName: 'PK_UserWallet',
+        transformer: {
+            from: (value) => value,
+            to: (value) => value.toLowerCase(),
+        },
+    })
     wallet: string;
 
     @Column('varchar', { nullable: true, default: null })
@@ -34,27 +36,12 @@ export class User {
     @Column('boolean', { nullable: false, default: false })
     confirmed: boolean;
 
-    @CreateDateColumn({ type: 'timestamp with time zone' })
+    @CreateDateColumn()
     createdAt: Date;
-
-    @OneToMany(() => Item, (item) => item.creator)
-    items?: Item[];
 
     @OneToMany(() => Transaction, (transaction) => transaction.user)
     transactions?: Transaction[];
 
-    @OneToMany(() => Collectible, (collectible) => collectible.creator)
-    collectibles?: Collectible[];
-
-    @OneToMany(
-        () => StoredCollection,
-        (storedCollection) => storedCollection.user,
-    )
-    storedCollections?: StoredCollection[];
-
-    @OneToMany(
-        () => StoredCollectible,
-        (storedCollectible) => storedCollectible.owner,
-    )
-    ownedCollectibles?: StoredCollectible[];
+    @OneToMany(() => Collection, (collection) => collection.deployer)
+    collections?: Collection[];
 }
