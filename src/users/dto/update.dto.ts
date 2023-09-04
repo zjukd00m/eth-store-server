@@ -1,7 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsEmail, IsOptional, IsString } from 'class-validator';
+import { Transform } from 'class-transformer';
+import {
+    IsBase64,
+    IsBoolean,
+    IsEmail,
+    IsEthereumAddress,
+    IsOptional,
+} from 'class-validator';
 
-export class UpdateUserDTO {
+export class UpdateUserBodyDTO {
     @ApiProperty({
         required: false,
     })
@@ -19,14 +26,21 @@ export class UpdateUserDTO {
     @ApiProperty({
         required: false,
     })
-    @IsString()
+    @IsBase64()
     @IsOptional()
     profilePicture?: string;
 
     @ApiProperty({
         required: false,
     })
-    @IsString()
+    @IsBase64()
     @IsOptional()
     backgroundPicture?: string;
+}
+
+export class UpdateUserDTO extends UpdateUserBodyDTO {
+    @ApiProperty()
+    @Transform(({ value }) => value.toLowerCase())
+    @IsEthereumAddress()
+    wallet: string;
 }

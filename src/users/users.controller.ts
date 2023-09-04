@@ -11,16 +11,14 @@ import {
     UseInterceptors,
 } from '@nestjs/common';
 import { CreateUserDTO } from './dto/create.dto';
-import { UpdateUserDTO } from './dto/update.dto';
-import { DeleteUserDTO } from './dto/delete.dto';
-import { SearchOneUser } from './dto/searchOne.dto';
-import { SearchManyUsersDTO } from './dto/searchMany.dto';
+import { UpdateUserBodyDTO } from './dto/update.dto';
 import { User } from './users.entity';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { UsersService } from './users.service';
-import { BaseUserDTO } from './dto/base.dto';
 import { UserFilesDTO } from './dto/changeProfilePictures.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { ParseEthereumAddressPipe } from 'src/pipes/parse-ethereum.pipe';
+import { FindManyUsersDTO } from './dto/findMany.dto';
 
 @ApiTags('Users')
 @Controller({ path: '/api/users' })
@@ -34,11 +32,13 @@ export class UsersController {
 
     @Put(':wallet')
     update(
-        @Param() param: BaseUserDTO,
-        @Body() request: UpdateUserDTO,
+        @Param('wallet', ParseEthereumAddressPipe) wallet: string,
+        @Body() request: UpdateUserBodyDTO,
     ): Promise<User> {
-        const { wallet } = param;
-        return this.usersService.update(wallet, request);
+        return this.usersService.update({
+            wallet,
+            ...request,
+        });
     }
 
     @Put('profile_pictures/:wallet')
@@ -49,12 +49,10 @@ export class UsersController {
         ]),
     )
     async changeProfilePictures(
-        @Param() param: BaseUserDTO,
+        @Param('wallet', ParseEthereumAddressPipe) wallet: string,
         @UploadedFiles()
         files: UserFilesDTO,
     ) {
-        const { wallet } = param;
-
         const filesRequest = {
             wallet,
             ...(files?.profilePicture?.[0]?.size > 0 && {
@@ -71,19 +69,22 @@ export class UsersController {
     }
 
     @Delete(':wallet')
-    delete(@Body() request: DeleteUserDTO): Promise<User> {
-        return this.usersService.delete(request);
+    delete(
+        @Param('wallet', ParseEthereumAddressPipe) wallet: string,
+    ): Promise<User> {
+        return this.usersService.delete({ wallet });
     }
 
     @Get(':wallet')
-    findOneByWallet(@Param() param: SearchOneUser): Promise<User> {
-        const { wallet } = param;
+    findOneByWallet(
+        @Param('wallet', ParseEthereumAddressPipe) wallet: string,
+    ): Promise<User> {
         return this.usersService.findOneByWallet({ wallet });
     }
 
     @Get()
     findAll(
-        @Query() request: SearchManyUsersDTO,
+        @Query() request: FindManyUsersDTO,
     ): Promise<{ users: Array<User> }> {
         return this.usersService.findAll(request);
     }
