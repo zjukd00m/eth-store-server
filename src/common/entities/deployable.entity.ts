@@ -4,7 +4,7 @@ import { ContractType } from '../enums/contract.enum';
 
 export class Deployable implements IDeployable {
     @Column('varchar', { length: 255, nullable: true, default: null })
-    address: string;
+    address?: string;
 
     @Column('bool', { nullable: false, default: false })
     isDeployed: boolean;

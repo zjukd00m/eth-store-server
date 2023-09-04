@@ -1,7 +1,7 @@
 import { ContractType } from '../enums/contract.enum';
 
 export interface IDeployable {
-    address: string;
+    address?: string;
     isStored?: boolean;
     contractType: ContractType;
 }

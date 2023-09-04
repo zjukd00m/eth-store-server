@@ -1,6 +1,3 @@
-import { IsUUID } from 'class-validator';
+import { CollectibleIdDTO } from './collectible-id.dto';
 
-export class FindCollectibleById {
-    @IsUUID('4')
-    id: string;
-}
+export class FindCollectibleById extends CollectibleIdDTO {}

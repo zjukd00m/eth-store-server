@@ -7,6 +7,7 @@ import {
 } from 'typeorm';
 import { Transaction } from 'src/transactions/transactions.entity';
 import { Collection } from 'src/collections/collection.entity';
+import { Collectible } from 'src/collectibles/collectibles.entity';
 
 @Entity({ name: 'Users' })
 export class User {
@@ -44,4 +45,7 @@ export class User {
 
     @OneToMany(() => Collection, (collection) => collection.deployer)
     collections?: Collection[];
+
+    @OneToMany(() => Collectible, (collectible) => collectible.deployer)
+    collectibles?: Collectible[];
 }
