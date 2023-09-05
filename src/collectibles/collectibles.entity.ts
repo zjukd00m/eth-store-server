@@ -24,7 +24,7 @@ export class Collectible extends Deployable {
     frozenMetadata: boolean;
 
     // OpenSea metadata that's shown in the UI
-    @Column('jsonb', { array: true, nullable: true, default: null })
+    @Column('jsonb', { array: false, nullable: true, default: null })
     metadata?: CollectibleMetadata;
 
     // Data stored in the EVM

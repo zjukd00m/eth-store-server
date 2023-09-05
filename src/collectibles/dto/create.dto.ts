@@ -1,4 +1,3 @@
-import { PartialType } from '@nestjs/mapped-types';
 import {
     IsBoolean,
     IsEnum,
@@ -7,19 +6,22 @@ import {
     IsNumber,
     IsObject,
     IsOptional,
+    Min,
 } from 'class-validator';
 import { ContractType } from 'src/common/enums/contract.enum';
-import { CollectibleIdDTO } from './collectible-id.dto';
 import { CreateCollectibleMetadataDTO } from './create-collectible-metadata.dto';
 import { CreateCollectibleDataDTO } from './create-collectible-data.dto';
+import { Transform } from 'class-transformer';
 
-export class CreateCollectibleBodyDTO extends PartialType(CollectibleIdDTO) {
+export class CreateCollectibleBodyDTO {
+    @Transform(({ value }) => value?.toLowerCase() || null)
     @IsEthereumAddress()
     @IsOptional()
     address?: string;
 
     @IsNumber()
     @IsOptional()
+    @Min(1)
     supply?: number;
 
     @IsEnum(ContractType)
@@ -41,6 +43,7 @@ export class CreateCollectibleBodyDTO extends PartialType(CollectibleIdDTO) {
 }
 
 export class CreateCollectibleDTO extends CreateCollectibleBodyDTO {
+    @Transform(({ value }) => value?.toLowerCase())
     @IsEthereumAddress()
     wallet: string;
 }

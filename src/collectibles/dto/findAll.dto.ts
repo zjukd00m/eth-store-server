@@ -9,8 +9,9 @@ import { CollectibleIdDTO } from './collectible-id.dto';
 import { ContractType } from 'src/common/enums/contract.enum';
 import { Transform } from 'class-transformer';
 import { IsTimestamp } from 'src/validators/date.validator';
+import { PartialType } from '@nestjs/mapped-types';
 
-export class FindAllCollectiblesDTO extends CollectibleIdDTO {
+export class FindAllCollectiblesDTO extends PartialType(CollectibleIdDTO) {
     @IsBoolean()
     @IsOptional()
     frozenMetata?: boolean;

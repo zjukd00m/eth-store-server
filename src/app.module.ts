@@ -19,6 +19,8 @@ import { CollectionsService } from './collections/collections.service';
 import { TransactionsService } from './transactions/transactions.service';
 import { UsersService } from './users/users.service';
 import { NotificationsService } from './notifications/notifications.service';
+import { CollectiblesModule } from './collectibles/collectibles.module';
+import { CollectiblesService } from './collectibles/collectibles.service';
 
 @Module({
     imports: [
@@ -74,6 +76,7 @@ import { NotificationsService } from './notifications/notifications.service';
         UsersModule,
         NotificationsModule,
         CollectionsModule,
+        CollectiblesModule,
         EthereumModule,
         AuthModule,
         TransactionsModule,
@@ -83,6 +86,7 @@ import { NotificationsService } from './notifications/notifications.service';
         AuthService,
         EthereumService,
         CollectionsService,
+        CollectiblesService,
         TransactionsService,
         NotificationsService,
     ],

@@ -36,6 +36,22 @@ export class CollectionsService {
             );
         }
 
+        if (address) {
+            const collectionExist = await this.collectionsRepository.exist({
+                where: { address },
+                select: { address: true },
+            });
+
+            if (collectionExist) {
+                throw new HttpException(
+                    {
+                        message: `A collection with the address ${address} already exists`,
+                    },
+                    HttpStatus.BAD_REQUEST,
+                );
+            }
+        }
+
         const collection: Collection = this.collectionsRepository.create({
             contractType,
             contractData,
@@ -91,6 +107,20 @@ export class CollectionsService {
                 {
                     message:
                         'A collection cannot have an address without the isDeployed attribute set as true',
+                },
+                HttpStatus.BAD_REQUEST,
+            );
+        }
+
+        if (
+            collection.address?.length &&
+            address?.length &&
+            collection.address !== address
+        ) {
+            throw new HttpException(
+                {
+                    message:
+                        "The collection already has an address and can't be updated",
                 },
                 HttpStatus.BAD_REQUEST,
             );
