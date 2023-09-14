@@ -15,6 +15,10 @@ async function bootstrap() {
         .addTag('Items')
         .build();
 
+    app.enableCors({
+        origin: '*',
+    });
+
     const document = SwaggerModule.createDocument(app, swaggerConfig);
 
     SwaggerModule.setup('api', app, document);
@@ -27,10 +31,6 @@ async function bootstrap() {
             whitelist: true, // strip out non-decorated DTO properties in validation
         }),
     );
-
-    app.enableCors({
-        origin: '*',
-    });
 
     await app.listen(process.env.ETH_SERVER_PORT || 8098);
 }
