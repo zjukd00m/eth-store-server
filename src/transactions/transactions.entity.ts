@@ -17,10 +17,6 @@ export class Transaction {
     @Column('varchar', { length: 256, nullable: false })
     address: string;
 
-    // Value of the transaction in WEI
-    @Column('bigint', { nullable: false })
-    value: number;
-
     @ManyToOne(() => User, (user) => user.transactions, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'userId', referencedColumnName: 'wallet' })
     user: User;
