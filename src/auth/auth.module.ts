@@ -6,6 +6,7 @@ import { EthereumModule } from 'src/ethereum/ethereum.module';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/users/users.entity';
+import { JWToken } from './auth.entity';
 
 @Module({
     imports: [
@@ -25,7 +26,7 @@ import { User } from 'src/users/users.entity';
             }),
         }),
         EthereumModule,
-        TypeOrmModule.forFeature([User]),
+        TypeOrmModule.forFeature([User, JWToken]),
     ],
     controllers: [AuthController],
     providers: [AuthService],
