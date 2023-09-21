@@ -1,21 +1,42 @@
 version: '3'
 
 services:
-  server:
-    build:
-      context: .
-      args:
-        - POSTGRES_URI_ARG=${POSTGRES_URI}
-    container_name: eth-store-server
+  eth_store_server:
+    restart: always
+    container_name: eth_store_server
     environment:
-      - NODE_ENV=dev
+      - NODE_ENV=$NODE_ENV}
+      - ETH_SERVER_PORT=${ETH_SERVER_PORT}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    hostname: eth_store_server
+    networks:
+      - eth_store_network
+    ports:
+      - "8098:8098"
 
-  db:
+  eth_store_db:
+    restart: always
     image: postgres:latest
-    container_name: eth-store-db
+    container_name: eth_store_db
+    hostname: eth_store_db
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
+    networks:
+      - eth_store_network
     ports:
-      - "5439:5432"
+      - "5444:5432"
+
+networks:
+  eth_store_network:
+    driver: bridge
+    name: eth_store_network
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.0.7.0/24
