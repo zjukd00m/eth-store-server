@@ -55,7 +55,11 @@ import { CollectiblesService } from './collectibles/collectibles.service';
             inject: [ConfigService],
             useFactory: (configService: ConfigService) => ({
                 type: 'postgres',
-                url: configService.get('database.url'),
+                host: configService.get('database.hostname'),
+                port: +configService.get('database.port'),
+                username: configService.get('database.username'),
+                password: configService.get('database.password'),
+                database: configService.get('database.name'),
                 synchronize: true,
                 logging: true,
                 entities: ['./dist/src/**/*.entity.js'],

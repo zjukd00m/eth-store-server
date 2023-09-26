@@ -37,15 +37,12 @@ export class UsersService {
         return await this.usersRepository.save(user);
     }
 
-    async update(request: UpdateUserDTO) {
-        const { wallet } = request;
+    async update(updateUserDTO: UpdateUserDTO) {
+        const { wallet } = updateUserDTO;
 
         const user = await this.findOneByWallet({ wallet });
 
-        Object.assign(user, request);
-
-        console.log('This is the wallet');
-        console.log(wallet);
+        Object.assign(user, updateUserDTO);
 
         return await this.usersRepository.save(user);
     }

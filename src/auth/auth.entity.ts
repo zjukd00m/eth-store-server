@@ -5,7 +5,7 @@ export class JWToken {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Column('varchar', { length: 256 })
+    @Column('varchar', { length: 500 })
     token: string;
 
     @Column('bool', { default: false })

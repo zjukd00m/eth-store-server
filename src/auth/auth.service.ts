@@ -84,17 +84,33 @@ export class AuthService {
 
         const accessToken = await this.jwtService.signAsync(payload);
 
+        const jwtToken = this.tokenRepository.create({
+            token: accessToken,
+        });
+
+        await this.tokenRepository.save(jwtToken);
+
         return { accessToken };
     }
 
     async logout(request: IAuthRequest, token: string) {
-        const storedToken = this.tokenRepository.create({
-            token,
-            revoked: true,
-        });
+        try {
+            const storedToken = await this.tokenRepository.findOneByOrFail({
+                token,
+            });
 
-        await this.tokenRepository.save(storedToken);
+            storedToken.revoked = true;
 
-        return 200;
+            await this.tokenRepository.save(storedToken);
+
+            return 200;
+        } catch (error) {
+            throw new HttpException(
+                {
+                    message: error.message,
+                },
+                HttpStatus.NOT_FOUND,
+            );
+        }
     }
 }
