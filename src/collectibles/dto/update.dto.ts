@@ -49,4 +49,7 @@ export class UpdateCollectibleBodyDTO {
 export class UpdateCollectibleDTO extends UpdateCollectibleBodyDTO {
     @IsUUID('4')
     id: string;
+
+    @IsEthereumAddress()
+    wallet: string;
 }

@@ -1,6 +1,11 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+    HttpException,
+    HttpStatus,
+    Injectable,
+    UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ILike, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { FindOneCollectionDTO } from './dto/findOne.dto';
 import { CreateCollectionDTO } from './dto/create.dto';
 import { UpdateCollectionDTO } from './dto/update.dto';
@@ -19,22 +24,7 @@ export class CollectionsService {
     ) {}
 
     async create(request: CreateCollectionDTO) {
-        const { address, wallet, contractType, contractData } = request;
-
-        const walletExist = await this.usersRepository.exist({
-            where: { wallet },
-            select: { wallet: true },
-        });
-
-        if (!walletExist) {
-            throw new HttpException(
-                {
-                    message:
-                        'There is no an user account associated with that address',
-                },
-                HttpStatus.NOT_FOUND,
-            );
-        }
+        const { address, contractType, contractData, wallet } = request;
 
         if (address) {
             const collectionExist = await this.collectionsRepository.exist({
@@ -72,22 +62,7 @@ export class CollectionsService {
     async update(request: UpdateCollectionDTO) {
         const { address, isDeployed, id, wallet } = request;
 
-        const walletExist = await this.usersRepository.exist({
-            where: { wallet },
-            select: { wallet: true },
-        });
-
-        if (!walletExist) {
-            throw new HttpException(
-                {
-                    message:
-                        'There is no an user account associated with that address',
-                },
-                HttpStatus.NOT_FOUND,
-            );
-        }
-
-        const collection = await this.findOneById({ id });
+        const collection = await this.findOneById({ id, wallet });
 
         if (collection.isDeployed && isDeployed) {
             throw new HttpException(
@@ -140,9 +115,9 @@ export class CollectionsService {
     }
 
     async delete(request: DeleteCollectionDTO) {
-        const { id } = request;
+        const { id, wallet } = request;
 
-        const collection = await this.findOneById({ id });
+        const collection = await this.findOneById({ id, wallet });
 
         if (collection.isDeployed) {
             throw new HttpException(
@@ -157,37 +132,44 @@ export class CollectionsService {
     }
 
     async findOneById(request: FindOneCollectionDTO) {
-        const { id } = request;
+        const { id, wallet } = request;
+
+        let collection: Collection;
 
         try {
-            const collection = await this.collectionsRepository.findOneOrFail({
+            collection = await this.collectionsRepository.findOneOrFail({
                 where: { id },
+                relations: ['deployer'],
             });
-
-            // TODO: Fetch the collectible smart contract data here...
-            // if (collection.isDeployed) {}
-
-            return collection;
         } catch (error) {
             throw new HttpException(
                 { message: "The colletion doesn't exist" },
                 HttpStatus.NOT_FOUND,
             );
         }
+
+        // If the collection has not been deployed then it means that only the
+        // deployer can request it
+        if (!collection.isDeployed && collection.deployer.wallet !== wallet) {
+            throw new UnauthorizedException();
+        }
+
+        // TODO: Fetch the collectible smart contract data here...
+        // if (collection.isDeployed) {}
+
+        return collection;
     }
 
     async findAll(request: FindAllCollectionsDTO) {
         const { wallet } = request;
 
-        if (wallet?.length) {
-            delete request.wallet;
-        }
-
         const collections = await this.collectionsRepository.find({
             where: {
                 ...request,
                 ...(wallet?.length && {
-                    creator: { wallet: ILike(`%${wallet}%`) },
+                    deployer: {
+                        wallet,
+                    },
                 }),
             },
         });

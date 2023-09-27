@@ -8,36 +8,62 @@ import {
     Post,
     Put,
     Query,
+    Req,
+    UseInterceptors,
 } from '@nestjs/common';
 import { CollectiblesService } from './collectibles.service';
-import { CreateCollectibleDTO } from './dto/create.dto';
+import { CreateCollectibleBodyDTO } from './dto/create.dto';
 import { UpdateCollectibleBodyDTO } from './dto/update.dto';
 import { FindAllCollectiblesDTO } from './dto/findAll.dto';
 import { AddToCollectionDTO } from './dto/add-to-collection.dto';
+import { AuthInterceptor } from 'src/auth/auth.interceptor';
+import { IAuthRequest } from 'src/auth/auth.interfaces';
 
 @Controller({ path: 'api/collectibles' })
 export class CollectiblesController {
     constructor(private readonly collectiblesService: CollectiblesService) {}
 
+    @UseInterceptors(AuthInterceptor)
     @Post()
-    create(@Body() request: CreateCollectibleDTO) {
-        return this.collectiblesService.create(request);
+    create(
+        @Body() createCollectibleDTO: CreateCollectibleBodyDTO,
+        @Req() request: IAuthRequest,
+    ) {
+        const wallet = request.user.wallet;
+
+        return this.collectiblesService.create({
+            ...createCollectibleDTO,
+            wallet,
+        });
     }
 
+    @UseInterceptors(AuthInterceptor)
     @Put(':id')
     edit(
         @Param('id', ParseUUIDPipe) id: string,
-        @Body() request: UpdateCollectibleBodyDTO,
+        @Body() updateCollectibleBodyDTO: UpdateCollectibleBodyDTO,
+        @Req() request: IAuthRequest,
     ) {
+        const wallet = request.user.wallet;
         return this.collectiblesService.edit({
-            ...request,
+            ...updateCollectibleBodyDTO,
+            wallet,
             id,
         });
     }
 
+    @UseInterceptors(AuthInterceptor)
     @Delete(':id')
-    delete(@Param('id', ParseUUIDPipe) id: string) {
-        return this.collectiblesService.delete(id);
+    delete(
+        @Param('id', ParseUUIDPipe) id: string,
+        @Req() request: IAuthRequest,
+    ) {
+        const wallet = request.user.wallet;
+
+        return this.collectiblesService.delete({
+            id,
+            wallet,
+        });
     }
 
     @Get(':id')
@@ -51,8 +77,8 @@ export class CollectiblesController {
     }
 
     @Post('add_to_collection')
-    addToCollection(@Body() request: AddToCollectionDTO) {
-        return this.collectiblesService.addToCollection(request);
+    addToCollection(@Body() addToCollectionDTO: AddToCollectionDTO) {
+        return this.collectiblesService.addToCollection(addToCollectionDTO);
     }
 
     @Delete('remove_from_collection/:id')

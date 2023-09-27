@@ -12,9 +12,11 @@ import { Collectible } from 'src/collectibles/collectibles.entity';
 @Entity({ name: 'Users' })
 export class User {
     @PrimaryColumn({
+        type: 'text',
         unique: true,
         nullable: false,
         primaryKeyConstraintName: 'PK_UserWallet',
+        foreignKeyConstraintName: 'FK_UserWallet',
         transformer: {
             from: (value) => value,
             to: (value) => value.toLowerCase(),

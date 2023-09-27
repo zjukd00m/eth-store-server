@@ -8,6 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ChangeProfilePicturesDTO } from './dto/changeProfilePictures.dto';
 import { FindOneByWallet } from './dto/findOne.dto';
 import { FindManyUsersDTO } from './dto/findMany.dto';
+import { UserWallet } from './types/users.types';
 
 @Injectable()
 export class UsersService {
@@ -68,6 +69,10 @@ export class UsersService {
                 HttpStatus.NOT_FOUND,
             );
         }
+    }
+
+    async getMyProfile(request: UserWallet) {
+        return await this.findOneByWallet(request);
     }
 
     async findAll(request: FindManyUsersDTO) {

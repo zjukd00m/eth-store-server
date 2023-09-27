@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+    HttpException,
+    HttpStatus,
+    Injectable,
+    UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Collectible } from './collectibles.entity';
 import { Repository } from 'typeorm';
@@ -10,6 +15,7 @@ import { AddToCollectionDTO } from './dto/add-to-collection.dto';
 import { FindCollectibleById } from './dto/findById.dto';
 import { ContractType } from 'src/common/enums/contract.enum';
 import { RemoveFromCollectionDTO } from './dto/remove-from-collection.dto';
+import { DeleteCollectibleDTO } from './dto/delete.dto';
 
 @Injectable()
 export class CollectiblesService {
@@ -115,8 +121,15 @@ export class CollectiblesService {
         return await this.collectibles.save(collectible);
     }
 
-    async delete(id: string) {
+    async delete(request: DeleteCollectibleDTO) {
+        const { id, wallet } = request;
+
         const collectible = await this.findOneById({ id });
+
+        // Only the collectible's deployer can delete the item
+        if (collectible.deployer.wallet !== wallet) {
+            throw new UnauthorizedException();
+        }
 
         if (collectible.isDeployed) {
             throw new HttpException(
@@ -130,15 +143,15 @@ export class CollectiblesService {
         await this.collectibles.remove(collectible);
     }
 
-    findOneById(request: FindCollectibleById) {
+    async findOneById(request: FindCollectibleById) {
         const { id } = request;
 
         try {
-            return this.collectibles.findOneOrFail({
+            return await this.collectibles.findOneOrFail({
                 where: {
                     id,
                 },
-                relations: ['collection'],
+                relations: ['collection', 'deployer'],
             });
         } catch (error) {
             throw new HttpException(

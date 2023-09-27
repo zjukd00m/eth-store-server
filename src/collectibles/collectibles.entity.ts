@@ -41,5 +41,6 @@ export class Collectible extends Deployable {
     collection: Collection;
 
     @ManyToOne(() => User, (user) => user.collectibles, { onDelete: 'CASCADE' })
+    @JoinColumn({ name: 'deployerWallet', referencedColumnName: 'wallet' })
     deployer: User;
 }

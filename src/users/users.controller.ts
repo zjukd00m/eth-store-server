@@ -101,15 +101,17 @@ export class UsersController {
     }
 
     @UseInterceptors(AuthInterceptor)
+    @Get('profile')
+    getMyProfile(@Req() request: IAuthRequest): Promise<User> {
+        const wallet = request.user.wallet;
+
+        return this.usersService.getMyProfile({ wallet });
+    }
+
     @Get(':wallet')
     findOneByWallet(
         @Param('wallet', ParseEthereumAddressPipe) wallet: string,
-        @Req() request: IAuthRequest,
     ): Promise<User> {
-        if (request.user.wallet !== wallet) {
-            throw new UnauthorizedException();
-        }
-
         return this.usersService.findOneByWallet({ wallet });
     }
 
