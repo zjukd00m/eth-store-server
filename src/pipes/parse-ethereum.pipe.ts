@@ -15,6 +15,6 @@ export class ParseEthereumAddressPipe implements PipeTransform<string, string> {
             );
         }
 
-        return value.toLocaleLowerCase();
+        return value.toLowerCase();
     }
 }

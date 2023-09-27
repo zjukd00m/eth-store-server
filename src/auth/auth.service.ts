@@ -23,19 +23,6 @@ export class AuthService {
     async login(request: LoginDTO) {
         const { wallet, signature, message } = request;
 
-        let user: User;
-
-        // Verify if the user exists, otherwise register it
-        user = await this.usersRepository.findOne({
-            where: { wallet },
-            select: { wallet: true },
-        });
-
-        if (!user) {
-            user = this.usersRepository.create({ wallet });
-            user = await this.usersRepository.save(user);
-        }
-
         // Verify if the message and the signature are valid
         const isValidEthereumSignature = await this.ethService
             .verifyMessageSignature({
@@ -45,13 +32,6 @@ export class AuthService {
             })
             .then((isValid) => isValid)
             .catch((error) => {
-                if (error.code === 'INVALID_ARGUMENT')
-                    throw new HttpException(
-                        {
-                            message: error.message,
-                        },
-                        HttpStatus.BAD_REQUEST,
-                    );
                 throw new HttpException(
                     {
                         message: error.message,
@@ -69,6 +49,19 @@ export class AuthService {
             );
         }
 
+        let user: User;
+
+        // Verify if the user exists, otherwise register it
+        user = await this.usersRepository.findOne({
+            where: { wallet },
+            select: { wallet: true },
+        });
+
+        if (!user) {
+            user = this.usersRepository.create({ wallet });
+            user = await this.usersRepository.save(user);
+        }
+
         // Generate the jwt token with issued-at and expires-at data
         const issuedAt = new Date();
 
@@ -77,6 +70,7 @@ export class AuthService {
                 wallet,
                 confirmed: user.confirmed,
                 ...(user.email?.length && { email: user.email }),
+                claim: request.isAdmin ? 'ADMINISTRADORE' : 'USER',
             },
             sub: wallet,
             iat: Math.floor(issuedAt.getTime() / 1000),

@@ -1,4 +1,10 @@
-import { IsEthereumAddress, IsNotEmpty, IsString } from 'class-validator';
+import {
+    IsBoolean,
+    IsEthereumAddress,
+    IsNotEmpty,
+    IsOptional,
+    IsString,
+} from 'class-validator';
 
 export class LoginDTO {
     @IsEthereumAddress()
@@ -11,4 +17,8 @@ export class LoginDTO {
     @IsString()
     @IsNotEmpty()
     message: string;
+
+    @IsBoolean()
+    @IsOptional()
+    isAdmin?: boolean;
 }

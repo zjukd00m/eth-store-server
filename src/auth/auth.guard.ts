@@ -1,23 +1,49 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Request } from 'express';
-import { Observable } from 'rxjs';
+import { JwtService } from '@nestjs/jwt';
+import { IAuthUserPayload } from './auth.interfaces';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-    canActivate(
-        context: ExecutionContext,
-    ): boolean | Promise<boolean> | Observable<boolean> {
+    constructor(private readonly jwtService: JwtService) {}
+
+    async canActivate(context: ExecutionContext): Promise<boolean> {
         const req: Request = context.switchToHttp().getRequest();
 
-        const cookies = req.cookies;
-        const headers = req.headers;
+        if (!req.headers?.authorization?.length) {
+            return false;
+        }
 
-        console.log('==> Request cookies');
-        console.log(cookies);
-        console.log(cookies?.auth);
-        console.log(headers);
-        console.log('<==');
+        if (!req.headers?.authorization.includes('Bearer')) {
+            return false;
+        }
 
-        return true;
+        const token = req.headers.authorization.split('Bearer ')[1];
+
+        const expectedClaim = 'ADMINISTRADORE';
+
+        try {
+            const payload: IAuthUserPayload = await this.jwtService.verifyAsync(
+                token,
+            );
+
+            const {
+                data: { claim, wallet },
+            } = payload;
+
+            if (claim !== expectedClaim) {
+                return false;
+            }
+
+            // In production, only one wallet can have access to it all
+            if (process.env.PRODUCTION === '1')
+                if (wallet !== '') {
+                    return false;
+                }
+
+            return true;
+        } catch (error) {
+            return false;
+        }
     }
 }
