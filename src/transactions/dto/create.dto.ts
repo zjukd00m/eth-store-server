@@ -6,8 +6,4 @@ export class CreateTransactionDTO {
 
     @IsEthereumAddress()
     wallet: string;
-
-    // Price in WETH
-    @IsNumberString()
-    price: string;
 }

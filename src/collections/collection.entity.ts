@@ -25,7 +25,7 @@ export class Collection extends Deployable {
 
     // OpenSea contract level metadata (stored in the smart contract as an URL string pointing to a json file)
     @Column('jsonb', { array: false, nullable: true, default: null })
-    metadata: CollectionMetadata;
+    metadata?: CollectionMetadata;
 
     // The contract data is the same for ERC-721 and ERC-1155 NFT standards (this data is stored in the EVM)
     @Column('jsonb', { array: false, nullable: false })

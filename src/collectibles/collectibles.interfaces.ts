@@ -16,6 +16,7 @@ export interface CollectibleMetadata {
     youtube_url?: string;
 }
 
+// The collectible that's stored in the EVM
 export interface CollectibleData {
     id: number;
 }

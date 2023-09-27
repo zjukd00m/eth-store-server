@@ -1,8 +1,8 @@
 import {
-    IsBoolean,
+    IsBooleanString,
     IsEnum,
     IsEthereumAddress,
-    IsNumber,
+    IsNumberString,
     IsOptional,
 } from 'class-validator';
 import { CollectibleIdDTO } from './collectible-id.dto';
@@ -12,11 +12,11 @@ import { IsTimestamp } from 'src/validators/date.validator';
 import { PartialType } from '@nestjs/mapped-types';
 
 export class FindAllCollectiblesDTO extends PartialType(CollectibleIdDTO) {
-    @IsBoolean()
+    @IsBooleanString()
     @IsOptional()
-    frozenMetata?: boolean;
+    frozenMetadata?: boolean;
 
-    @IsNumber()
+    @IsNumberString()
     @IsOptional()
     supply?: number;
 
@@ -29,7 +29,7 @@ export class FindAllCollectiblesDTO extends PartialType(CollectibleIdDTO) {
     @IsOptional()
     contractType?: ContractType;
 
-    @IsBoolean()
+    @IsBooleanString()
     @IsOptional()
     isDeployed?: boolean;
 
